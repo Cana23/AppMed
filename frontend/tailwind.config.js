@@ -20,7 +20,6 @@ export default {
       },
     },
   },
-  plugins: [require("flowbite/plugin")],
   fontFamily: {
     body: [
       "Inter",
