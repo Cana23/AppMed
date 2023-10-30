@@ -1,4 +1,4 @@
-const mysql = require('mysql');
+import { createConnection } from 'mysql';
 
 const dbConfig = {
     host: "localhost",
@@ -7,7 +7,7 @@ const dbConfig = {
     database: "medicamentos_db"
 };
 
-const connection = mysql.createConnection(dbConfig);
+const connection = createConnection(dbConfig);
 
 connection.connect((err) => {
     if (err) {
@@ -17,4 +17,4 @@ connection.connect((err) => {
     console.log("Conexion segura a la base de datos.")
 });
 
-module.exports = connection;
+export default connection;

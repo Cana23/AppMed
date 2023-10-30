@@ -1,6 +1,6 @@
-const express = require('express');
-const cors = require('cors');
-const morgan = require('morgan');
+import express, { json } from 'express';
+import cors from 'cors';
+import morgan from 'morgan';
 
 const app = express();
 const PORT = process.env.PORT || 3300;
@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3300;
 // Middleware
 app.use(cors());
 app.use(morgan('combined'));
-app.use(express.json());
+app.use(json());
 
 // Ruta de mensaje
 app.get('/', (req, res) => {

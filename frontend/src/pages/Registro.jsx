@@ -1,12 +1,13 @@
 import FormMed from "../components/FormMed";
-
+import Header from "../components/Header";
 
 function Registro() {
 
     return(
-        <div className="flex justify-center items-center h-3/4">
-            <FormMed />
-        </div>
+        <>
+        <Header />
+        <FormMed />
+        </>
     )
 }
 
