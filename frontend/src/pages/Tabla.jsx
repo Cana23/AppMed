@@ -1,4 +1,4 @@
-import FormMed from "../components/FormMed";
+import FormMed from "../components/test";
 import Header from "../components/Header";
 
 function Registro() {

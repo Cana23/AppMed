@@ -1,4 +1,3 @@
-import { PlusIcon } from "@heroicons/react/24/solid";
 import { Link } from "react-router-dom";
 
 export default function Header() {
@@ -12,20 +11,14 @@ export default function Header() {
       <div className="px-4 flex flex-row">
         <div className="px-4 flex flex-row">
           <div>
-            <Link to="/registro">
+            <Link to="/user">
             <button className="bg-other hover:bg-purple-400 border rounded-2xl py-1 px-2 font-montserrat flex flex-row font-bold">
-              <PlusIcon className="text-slate-800 h-5 w-5" />
               <p className="font-montserrat font-bold px-2">
-                Añadir medicamento
+                Iniciar Sesion
               </p>
             </button>
             </Link>
           </div>
-        </div>
-        <div>
-          <button className="bg-other hover:bg-purple-400 border rounded-2xl py-1 px-4 font-montserrat font-bold">
-            Iniciar Sesion
-          </button>
         </div>
       </div>
     </header>
