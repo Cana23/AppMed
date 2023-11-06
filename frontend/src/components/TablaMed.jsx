@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -32,6 +32,8 @@ function TablaMed() {
   const [hour, setHour] = useState('');
   const [comments, setComments] = useState('');
 
+  const backendUrl = 'http://localhost:3000';
+
   const addMedicine = () => {
     if (hour === '') {
       const newData = {
@@ -45,18 +47,32 @@ function TablaMed() {
     } else {
       const timeOfDay = getTimeOfDay(hour);
       if (timeOfDay) {
-        const newData = {
-          ...data,
-          [timeOfDay]: [...data[timeOfDay], { medicine, dose, hour, date: new Date(), comments }],
-        };
-        setData(newData);
+        const newMedicine = { medicine, dose, hour, date: new Date(), comments };
+        const newData = { ...data, [timeOfDay]: [...data[timeOfDay], newMedicine] };
+
+        fetch(`${backendUrl}/medicamentos`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newMedicine),
+        })
+          .then((response) => {
+            if (response.status === 201) {
+              setData(newData);
+              setMedicine('');
+              setDose('');
+              setHour('');
+              setComments('');
+            } else {
+              console.error('Error al agregar el medicamento');
+            }
+          })
+          .catch((error) => {
+            console.error('Error al realizar la solicitud POST:', error);
+          });
       }
     }
-
-    setMedicine('');
-    setDose('');
-    setHour('');
-    setComments('');
   };
 
   const getTimeOfDay = (hour) => {
@@ -75,6 +91,17 @@ function TablaMed() {
     }
     return 'cuandoSeaNecesario';
   };
+
+  useEffect(() => {
+    fetch(`${backendUrl}/medicamentos`)
+      .then((response) => response.json())
+      .then((dataFromServer) => {
+        setData(dataFromServer);
+      })
+      .catch((error) => {
+        console.error('Error al cargar los medicamentos:', error);
+      });
+  }, []);
 
   return (
     <div>
