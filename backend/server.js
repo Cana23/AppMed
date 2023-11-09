@@ -19,6 +19,8 @@ app.get("/medicamentos", medicamentosController.getMeds); // READ
 app.get("/medicamentos/:id", medicamentosController.getMedById); 
 app.put("/medicamentos/:id", medicamentosController.updateMed); // UPDATE
 app.delete("/medicamentos/:id", medicamentosController.eraseMed); // DELETE
+app.delete("/medicamentos/:id/horas/:horaTomaId", medicamentosController.eliminarHora);
+
 
 // Iniciar el servidor
 app.listen(PORT, () => {
