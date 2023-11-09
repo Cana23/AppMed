@@ -7,7 +7,7 @@ function Inicio() {
     return(
         <>
         <Header />
-        <div>
+        <div className="flex justify-center">
             <TablaMed />
         </div>
         </>

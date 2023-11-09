@@ -1,4 +1,4 @@
-import { createConnection } from 'mysql';
+const { createConnection } = require('mysql');
 
 const dbConfig = {
     host: "localhost",
@@ -7,9 +7,9 @@ const dbConfig = {
     database: "medicamentos_db"
 };
 
-const connection = createConnection(dbConfig);
+const db = createConnection(dbConfig);
 
-connection.connect((err) => {
+db.connect((err) => {
     if (err) {
         console.error("Error conectandose a la base de datos: ", err);
         return;
@@ -17,4 +17,6 @@ connection.connect((err) => {
     console.log("Conexion segura a la base de datos.")
 });
 
-export default connection;
+// En este punto, el objeto `db` debería tener un método `query` que se puede utilizar en tus rutas.
+
+module.exports = db; // Exporta la conexión para su uso en otros archivos.

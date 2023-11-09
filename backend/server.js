@@ -1,19 +1,24 @@
-import express, { json } from 'express';
-import cors from 'cors';
-import morgan from 'morgan';
+const express = require('express');
+const cors = require('cors');
+const morgan = require('morgan');
 
 const app = express();
 const PORT = process.env.PORT || 3300;
 
 // Middleware
-app.use(cors());
-app.use(morgan('combined'));
-app.use(json());
+app.use(cors({
+  origin: 'http://localhost:5173', // Reemplaza con tu dominio real
+}));
+app.use(morgan('dev'));
+app.use(express.json());
 
-// Ruta de mensaje
-app.get('/', (req, res) => {
-  res.json({ message: '¡Hola, mundo!' });
-});
+const medicamentosController = require('./Controllers/medicamentosController');
+
+app.post("/medicamentos", medicamentosController.insertMed); // CREATE
+app.get("/medicamentos", medicamentosController.getMeds); // READ
+app.get("/medicamentos/:id", medicamentosController.getMedById); 
+app.put("/medicamentos/:id", medicamentosController.updateMed); // UPDATE
+app.delete("/medicamentos/:id", medicamentosController.eraseMed); // DELETE
 
 // Iniciar el servidor
 app.listen(PORT, () => {
