@@ -1,30 +1,33 @@
 const connection = require("../db");
 
 function calcularHorasTomaProgramadas(
-  frecuencia_horas,
   hora_toma,
-  duracion_tratamiento_dias
+  frecuencia_horas,
+  duracion_tratamiento_dias,
 ) {
   const horasProgramadas = [];
   const milisegundosPorHora = 60 * 60 * 1000;
 
   const [hora, minuto] = hora_toma.split(':');
-const horaInicialMs = new Date().setHours(parseInt(hora), parseInt(minuto), 0, 0);
+  const hora_tomaMs = new Date().setHours(parseInt(hora), parseInt(minuto), 0, 0);
 
-for (let dia = 0; dia < duracion_tratamiento_dias; dia++) {
-  const diaActualMs = horaInicialMs + dia * 24 * milisegundosPorHora;
-  for (let i = 0; i < frecuencia_horas; i++) {
-    const horaTomaMs = diaActualMs + i * (24 / frecuencia_horas) * milisegundosPorHora;
-    const horaToma = new Date(horaTomaMs);
-    if (!isNaN(horaToma.getTime())) {
-      horasProgramadas.push(horaToma.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
+  const dosisPorDia = 24 / frecuencia_horas;
+
+  for (let dia = 0; dia < duracion_tratamiento_dias; dia++) {
+    const diaActualMs = hora_tomaMs + dia * 24 * milisegundosPorHora;
+    for (let i = 0; i < dosisPorDia; i++) {
+      const horaTomaMs = diaActualMs + i * frecuencia_horas * milisegundosPorHora;
+      const horaToma = new Date(horaTomaMs);
+      if (!isNaN(horaToma.getTime())) {
+        horasProgramadas.push(horaToma.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
+      }
     }
   }
-}
-
 
   return horasProgramadas;
 }
+
+
 
 
 exports.insertMed = (req, res) => {
@@ -42,8 +45,8 @@ exports.insertMed = (req, res) => {
   const fecha_toma = new Date(); // La fecha inicial se establece automáticamente en el momento de la inserción.
   const horasTomaProgramadas = calcularHorasTomaProgramadas(
     hora_toma,
-    frecuencia_horas,
-    duracion_tratamiento_dias
+    Number(frecuencia_horas),
+    Number(duracion_tratamiento_dias)
   );
 
   const sql =
