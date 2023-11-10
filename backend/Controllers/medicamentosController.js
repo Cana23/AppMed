@@ -74,7 +74,7 @@ exports.insertMed = (req, res) => {
 
   console.log("Datos recibidos en el backend:", req.body);
 
-  const fecha_toma = new Date(); // La fecha inicial se establece automáticamente en el momento de la inserción.
+  const fecha_toma = new Date();
   const horasTomaProgramadas = calcularHorasTomaProgramadas(
     hora_toma,
     Number(frecuencia_horas),
@@ -194,8 +194,7 @@ exports.marcarIngerido = (req, res) => {
         res.status(404).json({ error: "Medicamento no encontrado" });
       } else {
         const horasTomaProgramadas = JSON.parse(rows[0].horas_toma_programadas);
-        horasTomaProgramadas.shift(); // Eliminar la primera hora
-        // Actualizar la base de datos con las horas actualizadas
+        horasTomaProgramadas.shift(); 
         const updateSql = "UPDATE medicamentos SET horas_toma_programadas = ? WHERE id = ?";
         connection.query(updateSql, [JSON.stringify(horasTomaProgramadas), medicamentoId], (updateErr, updateResult) => {
           if (updateErr) {
@@ -231,7 +230,7 @@ exports.marcarNoIngerido = (req, res) => {
         res.status(404).json({ error: "Medicamento no encontrado" });
       } else {
         const { hora_toma, frecuencia_horas, duracion_tratamiento_dias } = rows[0];
-        const horaActual = obtenerHoraActual(); // Asegúrate de tener esta función
+        const horaActual = obtenerHoraActual(); 
         const horasTomaProgramadas = calcularHorasTomaProgramadasRestantes(
           horaActual,
           frecuencia_horas,

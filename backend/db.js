@@ -17,6 +17,4 @@ db.connect((err) => {
     console.log("Conexion segura a la base de datos.")
 });
 
-// En este punto, el objeto `db` debería tener un método `query` que se puede utilizar en tus rutas.
-
-module.exports = db; // Exporta la conexión para su uso en otros archivos.
+module.exports = db; 

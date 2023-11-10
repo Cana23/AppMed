@@ -14,7 +14,6 @@ function TablaMed() {
   const [data, setData] = useState([]);
   const [medicine, setMedicine] = useState("");
   const [dose, setDose] = useState("");
-  const [firstHour, setFirstHour] = useState("");
   const [frequency, setFrequency] = useState("");
   const [duration, setDuration] = useState("");
   const [comments, setComments] = useState("");
@@ -24,13 +23,17 @@ function TablaMed() {
   }, []);
 
   const categorizarEtapaDia = (horaToma) => {
-    const hora = parseInt(horaToma.split(":")[0]);
+    
+    const [horaStr, periodo] = horaToma.split(" ");
+    const hora = parseInt(horaStr.split(":")[0]);
 
-    if (hora >= 6 && hora < 12) {
+    const horaAjustada = periodo === "PM" ? hora + 12 : hora;
+
+    if (horaAjustada >= 6 && horaAjustada < 12) {
       return "mañana";
-    } else if (hora >= 12 && hora < 18) {
+    } else if (horaAjustada >= 12 && horaAjustada < 18) {
       return "tarde";
-    } else if (hora >= 18 && hora < 24) {
+    } else if (horaAjustada >= 18 && horaAjustada < 24) {
       return "noche";
     } else {
       return "madrugada";
@@ -53,12 +56,19 @@ function TablaMed() {
     }
   };
 
+  const obtenerHoraActual = () => {
+    const ahora = new Date();
+    const hora = ahora.getHours();
+    const minutos = ahora.getMinutes();
+    return `${hora}:${minutos}`;
+  };
+
   const agregarMed = async () => {
     try {
       const newMed = {
         nombre_medicamento: medicine,
         dosis: dose,
-        hora_toma: firstHour,
+        hora_toma: obtenerHoraActual(), // Utilizar la hora actual
         frecuencia_horas: frequency,
         duracion_tratamiento_dias: duration,
         comentarios: comments,
@@ -68,7 +78,6 @@ function TablaMed() {
       obtenerMed();
       setMedicine("");
       setDose("");
-      setFirstHour("");
       setDuration("");
       setFrequency("");
       setComments("");
@@ -81,7 +90,7 @@ function TablaMed() {
   const eliminarMedicamento = async (medicineId) => {
     try {
       await axios.delete(`http://localhost:3300/medicamentos/${medicineId}`);
-      obtenerMed(); // Vuelve a cargar los datos después de eliminar el medicamento
+      obtenerMed();
     } catch (error) {
       console.error("Error al eliminar el medicamento:", error);
     }
@@ -105,7 +114,7 @@ function TablaMed() {
         `http://localhost:3300/medicamentos/${medicineId}/no-ingerido`
       );
       console.log("Marcado como no ingerido exitosamente");
-      obtenerMed(); // Vuelve a cargar los datos después de marcar como no ingerido
+      obtenerMed();
     } catch (error) {
       console.error("Error al marcar como no ingerido:", error);
     }
@@ -127,7 +136,7 @@ function TablaMed() {
           onChange={(e) => setDose(e.target.value)}
         />
         <h2 className="text-center flex items-end justify-center">
-          Frecuencia (al dia)
+          Frecuencia (por hora)
         </h2>
         <TextField
           type="number"
@@ -141,14 +150,6 @@ function TablaMed() {
           type="number"
           value={duration}
           onChange={(e) => setDuration(e.target.value)}
-        />
-        <h2 className="text-center flex items-end justify-center">
-          Hora inicial de la toma
-        </h2>
-        <TextField
-          type="time"
-          value={firstHour}
-          onChange={(e) => setFirstHour(e.target.value)}
         />
         <h2 className="text-center flex items-end justify-center">
           Comentarios
@@ -187,20 +188,14 @@ function TablaMed() {
                   medicine.horas_toma_programadas
                 );
 
-                return (
-                  <TableRow key={i}>
+                return horasTomaProgramadas.map((hora, j) => (
+                  <TableRow key={`${i}-${j}`}>
                     <TableCell>
-                      {horasTomaProgramadas.length > 0
-                        ? categorizarEtapaDia(horasTomaProgramadas[0])
-                        : "Tratamiento Terminado"}
+                      {categorizarEtapaDia(hora)}
                     </TableCell>
                     <TableCell>{medicine.nombre_medicamento}</TableCell>
                     <TableCell>{medicine.dosis}</TableCell>
-                    <TableCell>
-                      {horasTomaProgramadas.map((hora, j) => (
-                        <div key={j}>{hora}</div>
-                      ))}
-                    </TableCell>
+                    <TableCell>{hora}</TableCell>
                     <TableCell>{medicine.fecha_toma}</TableCell>
                     <TableCell>{medicine.comentarios}</TableCell>
                     <TableCell>
@@ -221,7 +216,7 @@ function TablaMed() {
                       </Button>
                     </TableCell>
                   </TableRow>
-                );
+                ));
               } else {
                 console.log(
                   "Horas de toma programadas no es un array o está vacío:",
@@ -239,7 +234,7 @@ function TablaMed() {
 }
 
 /*
-<Button
+                      <Button
                         color="success"
                         onClick={() => marcarIngerido(medicine.id)}
                       >
