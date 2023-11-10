@@ -154,31 +154,48 @@ function TablaMed() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data.map((medicine, i) => (
-              <TableRow key={i}>
-                <TableCell>
-                  {categorizarEtapaDia(medicine.horas_toma_programadas[0])}
-                </TableCell>
-                <TableCell>{medicine.nombre_medicamento}</TableCell>
-                <TableCell>{medicine.dosis}</TableCell>
-                <TableCell>
-                  {Array.isArray(medicine.horas_toma_programadas)
-                    ? medicine.horas_toma_programadas.join(", ")
-                    : medicine.horas_toma_programadas}
-                </TableCell>
-                <TableCell>{medicine.fecha_toma}</TableCell>
-                <TableCell>{medicine.comentarios}</TableCell>
-                <TableCell>
-                  <Button color="secondary">Editar</Button>
-                  <Button
-                    color="error"
-                    onClick={() => eliminarMedicamento(medicine.id)}
-                  >
-                    Eliminar
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {data.map((medicine, i) => {
+              if (
+                typeof medicine.horas_toma_programadas === "string" &&
+                medicine.horas_toma_programadas.trim() !== ""
+              ) {
+                const horasTomaProgramadas = JSON.parse(
+                  medicine.horas_toma_programadas
+                );
+
+                return (
+                  <TableRow key={i}>
+                    <TableCell>
+                      {categorizarEtapaDia(horasTomaProgramadas[0])}
+                    </TableCell>
+                    <TableCell>{medicine.nombre_medicamento}</TableCell>
+                    <TableCell>{medicine.dosis}</TableCell>
+                    <TableCell>
+                      {horasTomaProgramadas.map((hora, j) => (
+                        <div key={j}>{hora}</div>
+                      ))}
+                    </TableCell>
+                    <TableCell>{medicine.fecha_toma}</TableCell>
+                    <TableCell>{medicine.comentarios}</TableCell>
+                    <TableCell>
+                      <Button color="secondary">Editar</Button>
+                      <Button
+                        color="error"
+                        onClick={() => eliminarMedicamento(medicine.id)}
+                      >
+                        Eliminar
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              } else {
+                console.log(
+                  "Horas de toma programadas no es un array o está vacío:",
+                  medicine.horas_toma_programadas
+                );
+                return null;
+              }
+            })}
           </TableBody>
         </Table>
       </TableContainer>
