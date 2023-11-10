@@ -19,6 +19,9 @@ app.get("/medicamentos", medicamentosController.getMeds); // READ
 app.get("/medicamentos/:id", medicamentosController.getMedById); 
 app.put("/medicamentos/:id", medicamentosController.updateMed); // UPDATE
 app.delete("/medicamentos/:id", medicamentosController.eraseMed); // DELETE
+app.post("/medicamentos/:id/ingerido", medicamentosController.marcarIngerido);
+app.put("/medicamentos/:id/no-ingerido", medicamentosController.marcarNoIngerido);
+
 
 
 // Iniciar el servidor

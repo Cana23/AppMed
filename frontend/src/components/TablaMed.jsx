@@ -87,6 +87,30 @@ function TablaMed() {
     }
   };
 
+  const marcarIngerido = async (medicamentoId) => {
+    try {
+      await axios.post(
+        `http://localhost:3300/medicamentos/${medicamentoId}/ingerido`
+      );
+      obtenerMed();
+    } catch (error) {
+      console.error("Error al marcar como ingerido:", error);
+    }
+  };
+
+  const marcarNoIngerido = async (medicineId) => {
+    try {
+      console.log(`Intentando marcar como no ingerido - ID: ${medicineId}`);
+      await axios.put(
+        `http://localhost:3300/medicamentos/${medicineId}/no-ingerido`
+      );
+      console.log("Marcado como no ingerido exitosamente");
+      obtenerMed(); // Vuelve a cargar los datos después de marcar como no ingerido
+    } catch (error) {
+      console.error("Error al marcar como no ingerido:", error);
+    }
+  };
+
   return (
     <div>
       <div className=" grid grid-flow-col grid-rows-2 gap-2 pb-2">
@@ -166,7 +190,9 @@ function TablaMed() {
                 return (
                   <TableRow key={i}>
                     <TableCell>
-                      {categorizarEtapaDia(horasTomaProgramadas[0])}
+                      {horasTomaProgramadas.length > 0
+                        ? categorizarEtapaDia(horasTomaProgramadas[0])
+                        : "Tratamiento Terminado"}
                     </TableCell>
                     <TableCell>{medicine.nombre_medicamento}</TableCell>
                     <TableCell>{medicine.dosis}</TableCell>
@@ -178,7 +204,15 @@ function TablaMed() {
                     <TableCell>{medicine.fecha_toma}</TableCell>
                     <TableCell>{medicine.comentarios}</TableCell>
                     <TableCell>
-                      <Button color="secondary">Editar</Button>
+                      <Button
+                        color="success"
+                        onClick={() => marcarIngerido(medicine.id)}
+                      >
+                        Ingerido
+                      </Button>
+                      <Button onClick={() => marcarNoIngerido(medicine.id)}>
+                        No Ingerido
+                      </Button>
                       <Button
                         color="error"
                         onClick={() => eliminarMedicamento(medicine.id)}
@@ -206,6 +240,13 @@ function TablaMed() {
 
 /*
 <Button
+                        color="success"
+                        onClick={() => marcarIngerido(medicine.id)}
+                      >
+                        Ingerido
+                      </Button>
+                      <Button color="secondary">Editar</Button>
+                      <Button
                         color="error"
                         onClick={() => eliminarMedicamento(medicine.id)}
                       >

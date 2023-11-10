@@ -27,6 +27,38 @@ function calcularHorasTomaProgramadas(
   return horasProgramadas;
 }
 
+function calcularHorasTomaProgramadasRestantes(
+  hora_toma,
+  frecuencia_horas,
+  duracion_tratamiento_dias,
+) {
+  const horasProgramadas = [];
+  const milisegundosPorHora = 60 * 60 * 1000;
+
+  const [hora, minuto] = hora_toma.split(':');
+  const hora_tomaMs = new Date().setHours(parseInt(hora), parseInt(minuto), 0, 0);
+
+  const dosisPorDia = 24 / frecuencia_horas;
+
+  const hoy = new Date();
+  const hoyMs = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate(), 0, 0, 0, 0).getTime();
+
+  for (let dia = 0; dia < duracion_tratamiento_dias; dia++) {
+    const diaActualMs = hora_tomaMs + dia * 24 * milisegundosPorHora;
+    if (diaActualMs >= hoyMs) {
+      // Solo calcular para el día actual y futuros
+      for (let i = 0; i < dosisPorDia; i++) {
+        const horaTomaMs = diaActualMs + i * frecuencia_horas * milisegundosPorHora;
+        const horaToma = new Date(horaTomaMs);
+        if (!isNaN(horaToma.getTime())) {
+          horasProgramadas.push(horaToma.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
+        }
+      }
+    }
+  }
+
+  return horasProgramadas;
+}
 
 
 
@@ -149,5 +181,77 @@ exports.eraseMed = (req, res) => {
   });
 };
 
+// Endpoint para marcar como "ingerido"
+exports.marcarIngerido = (req, res) => {
+  const medicamentoId = req.params.id;
+  const sql = "SELECT * FROM medicamentos WHERE id = ?";
+  connection.query(sql, [medicamentoId], (err, rows) => {
+    if (err) {
+      console.error("Error al obtener medicamento por ID:", err);
+      res.status(500).json({ error: "Error al obtener medicamento por ID" });
+    } else {
+      if (rows.length === 0) {
+        res.status(404).json({ error: "Medicamento no encontrado" });
+      } else {
+        const horasTomaProgramadas = JSON.parse(rows[0].horas_toma_programadas);
+        horasTomaProgramadas.shift(); // Eliminar la primera hora
+        // Actualizar la base de datos con las horas actualizadas
+        const updateSql = "UPDATE medicamentos SET horas_toma_programadas = ? WHERE id = ?";
+        connection.query(updateSql, [JSON.stringify(horasTomaProgramadas), medicamentoId], (updateErr, updateResult) => {
+          if (updateErr) {
+            console.error("Error al actualizar horas de toma programadas:", updateErr);
+            res.status(500).json({ error: "Error al marcar como ingerido" });
+          } else {
+            res.status(200).json({ message: "Medicamento marcado como ingerido" });
+          }
+        });
+      }
+    }
+  });
+};
 
+// Endpoint para marcar como No Ingerido (actualizar horas)
+exports.marcarNoIngerido = (req, res) => {
+  const medicamentoId = req.params.id;
+  const sql = "SELECT hora_toma, frecuencia_horas, duracion_tratamiento_dias FROM medicamentos WHERE id = ?";
+  
+  const obtenerHoraActual = () => {
+    const ahora = new Date();
+    const hora = ahora.getHours();
+    const minutos = ahora.getMinutes();
+    return `${hora}:${minutos}`;
+  };
 
+  connection.query(sql, [medicamentoId], (err, rows) => {
+    if (err) {
+      console.error("Error al obtener medicamento por ID:", err);
+      res.status(500).json({ error: "Error al obtener medicamento por ID" });
+    } else {
+      if (rows.length === 0) {
+        res.status(404).json({ error: "Medicamento no encontrado" });
+      } else {
+        const { hora_toma, frecuencia_horas, duracion_tratamiento_dias } = rows[0];
+        const horaActual = obtenerHoraActual(); // Asegúrate de tener esta función
+        const horasTomaProgramadas = calcularHorasTomaProgramadasRestantes(
+          horaActual,
+          frecuencia_horas,
+          duracion_tratamiento_dias
+        );
+
+        console.log("Hora actual:", horaActual);
+        console.log("Horas de toma programadas:", horasTomaProgramadas);
+        
+        const updateSql = "UPDATE medicamentos SET horas_toma_programadas = ?, hora_toma = ? WHERE id = ?";
+        connection.query(updateSql, [JSON.stringify(horasTomaProgramadas), hora_toma, medicamentoId], (updateErr, updateResult) => {
+          if (updateErr) {
+            console.error("Error al actualizar horas de toma programadas:", updateErr);
+            res.status(500).json({ error: "Error al marcar como no ingerido" });
+          } else {
+            console.log("Medicamento marcado como no ingerido exitosamente");
+            res.status(200).json({ message: "Medicamento marcado como no ingerido" });
+          }
+        });
+      }
+    }
+  });
+};
