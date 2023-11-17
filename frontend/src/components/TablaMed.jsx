@@ -23,21 +23,27 @@ function TablaMed() {
   }, []);
 
   const categorizarEtapaDia = (horaToma) => {
-    const [horaStr, periodo] = horaToma.split(" ");
-    const hora = parseInt(horaStr.split(":")[0]);
-
-    const horaAjustada = periodo === "PM" ? hora + 12 : hora;
-
-    if (horaAjustada >= 6 && horaAjustada < 12) {
-      return "mañana";
-    } else if (horaAjustada >= 12 && horaAjustada < 18) {
-      return "tarde";
-    } else if (horaAjustada >= 18 && horaAjustada < 24) {
-      return "noche";
+    const hora = new Date(horaToma).getHours();
+  
+    if (hora >= 6 && hora < 12) {
+      return { etapa: "mañana", color: etapaDiaColores["mañana"] };
+    } else if (hora >= 12 && hora < 18) {
+      return { etapa: "tarde", color: etapaDiaColores["tarde"] };
+    } else if (hora >= 18 && hora < 24) {
+      return { etapa: "noche", color: etapaDiaColores["noche"] };
     } else {
-      return "madrugada";
+      return { etapa: "madrugada", color: etapaDiaColores["madrugada"] };
     }
   };
+
+  const etapaDiaColores = {
+    mañana: '#FCBCBC',
+    tarde: '#FDECD8',
+    noche: '#82E1DB',
+    madrugada: '#97B2DD',
+  };
+  
+  
 
   const obtenerMed = async () => {
     try {
@@ -67,7 +73,7 @@ function TablaMed() {
       const newMed = {
         nombre_medicamento: medicine,
         dosis: dose,
-        hora_toma: obtenerHoraActual(), // Utilizar la hora actual
+        hora_toma: obtenerHoraActual(),
         frecuencia_horas: frequency,
         duracion_tratamiento_dias: duration,
         comentarios: comments,
@@ -118,6 +124,8 @@ function TablaMed() {
       console.error("Error al marcar como no ingerido:", error);
     }
   };
+
+  
 
   return (
     <div>
@@ -188,8 +196,8 @@ function TablaMed() {
                 );
 
                 return horasTomaProgramadas.map((hora, j) => (
-                  <TableRow key={`${i}-${j}`}>
-                    <TableCell>{categorizarEtapaDia(hora)}</TableCell>
+                  <TableRow style={{ backgroundColor: categorizarEtapaDia(hora).color }} key={`${i}-${j}`}>
+                    <TableCell>{categorizarEtapaDia(hora).etapa}</TableCell>
                     <TableCell>{medicine.nombre_medicamento}</TableCell>
                     <TableCell>{medicine.dosis}</TableCell>
                     <TableCell>{hora}</TableCell>
