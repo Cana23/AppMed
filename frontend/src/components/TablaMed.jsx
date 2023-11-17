@@ -23,7 +23,6 @@ function TablaMed() {
   }, []);
 
   const categorizarEtapaDia = (horaToma) => {
-    
     const [horaStr, periodo] = horaToma.split(" ");
     const hora = parseInt(horaStr.split(":")[0]);
 
@@ -46,7 +45,7 @@ function TablaMed() {
       setData(
         response.data.map((medicamento) => ({
           ...medicamento,
-          fecha_toma: new Date(medicamento.fecha_toma).toLocaleString(),
+          fecha_toma: new Date(medicamento.fecha_toma).toLocaleDateString(),
           horasProgramadas: JSON.parse(medicamento.horas_toma_programadas),
         }))
       );
@@ -172,8 +171,8 @@ function TablaMed() {
               <TableCell>Etapa del día</TableCell>
               <TableCell>Nombre del medicamento</TableCell>
               <TableCell>Dosis</TableCell>
-              <TableCell>Hora de toma programada</TableCell>
-              <TableCell>Fecha</TableCell>
+              <TableCell>Hora y dia de toma programada</TableCell>
+              <TableCell>Fecha de crecion</TableCell>
               <TableCell>Comentarios</TableCell>
               <TableCell>Configuración</TableCell>
             </TableRow>
@@ -190,9 +189,7 @@ function TablaMed() {
 
                 return horasTomaProgramadas.map((hora, j) => (
                   <TableRow key={`${i}-${j}`}>
-                    <TableCell>
-                      {categorizarEtapaDia(hora)}
-                    </TableCell>
+                    <TableCell>{categorizarEtapaDia(hora)}</TableCell>
                     <TableCell>{medicine.nombre_medicamento}</TableCell>
                     <TableCell>{medicine.dosis}</TableCell>
                     <TableCell>{hora}</TableCell>
@@ -233,20 +230,5 @@ function TablaMed() {
   );
 }
 
-/*
-                      <Button
-                        color="success"
-                        onClick={() => marcarIngerido(medicine.id)}
-                      >
-                        Ingerido
-                      </Button>
-                      <Button color="secondary">Editar</Button>
-                      <Button
-                        color="error"
-                        onClick={() => eliminarMedicamento(medicine.id)}
-                      >
-                        Eliminar
-                      </Button>
-*/
 
 export default TablaMed;
